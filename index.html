@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>My first three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>
+		<script src="https://threejs.org/build/three.js"></script>
+		<script type="text/javascript" src="https://threejs.org/examples/js/controls/OrbitControls.js"></script>
+		<script type="text/javascript" src="https://threejs.org/examples/js/loaders/OBJLoader.js"></script>
+		<script src="https://yee.how/item-list/items.js"></script>
+		<script src="https://yee.how/item-list/extra.js"></script>
+		<script src="utils.js"></script>
+		<script>
+			var camera, controls, scene, renderer,texture,Etexture=false,material,skinData=false,pulsT=false;
+ 
+			var config = {
+				fov:45,
+				webgl:{
+            preserveDrawingBuffer: !0,
+            precision: "mediump",
+            powerPreference: "high-performance",
+            alpha: !0,
+            antialias: true
+        },
+        params:new URLSearchParams(window.location.search),
+       	camP:[0,10,0],
+			},
+		    lights = [
+			new THREE.AmbientLight(9937064)
+			];
+function get(name){
+	var value = config.params.get(name)
+	return value?value:false
+}	init();
+			//render(); // remove when using next line for animation loop (requestAnimationFrame)
+			animate();
+			function init() {
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color( 0xcccccc );
+				scene.autoUpdate = true
+				renderer = new THREE.WebGLRenderer( config.webgl );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				camera = new THREE.PerspectiveCamera( config.fov, window.innerWidth / window.innerHeight, 1, 1000 );
+				camera.position.set( config.camP[0], config.camP[1], config.camP[2] );
+				scene.add(camera)
+				for(light of lights) scene.add(light)
+				// controls
+
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
+
+				controls.enableDamping = true; // an animation loop is required when either damping or auto-rotation are enabled
+
+
+				controls.screenSpacePanning = true;
+
+
+				//controls.maxPolarAngle = Math.PI / 2;
+
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+				if(get("skinIdP")){
+					load({
+						skinIdP:get("skinIdP")
+					})
+				}
+			}
+			function load(conf){
+				skinData = items[Number(conf.skinIdP)]
+				if(skinData.weapon){
+					var weapon = h[skinData.weapon]
+					var id = skinData.weapon
+	 		 		
+	 		 		skinId = false
+	 		 		var E,T;
+	 		 		if(skinData.mid){
+	 		 			E = utils.url("texture2",id+`_${skinData.mid}_e`)
+	 		 			T = utils.url("texture2",id+`_${skinData.mid}`)
+	 		 		}else{
+	 		 			E = utils.url("texture",id+`_${skinData.id}_e`)
+	 		 			T = utils.url("texture",id+`_${skinData.id}`)
+	 		 		}
+	 		 		texture = new THREE.TextureLoader().load( T )
+	 		 		if(skinData.glow){
+							 Etexture = new THREE.TextureLoader().load(E)
+					}
+					if(skinData.pulsT) pulsT = true
+						 material = new THREE.MeshPhongMaterial({
+							map: texture,
+							color:new THREE.Color("white"),
+							emissive:Etexture?new THREE.Color("white"):new THREE.Color("black"),
+							emissiveMap:Etexture?Etexture:null
+						})
+					var obj = new THREE.OBJLoader()
+					.load(utils.url("model",skinData.mid?`${id}_${skinData.mid}`:id),function(object){
+						object.name = "weapon"
+						var scale = skinData.mid?1:weapon.scale
+						object.scale.set(scale,scale,scale)
+						object.traverse( function ( child ) {
+
+        if ( child instanceof THREE.Mesh ) {
+
+            child.material = material;
+
+        }
+
+    } );
+						scene.add(object)
+					});
+				}
+			}
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+			function animate({
+    from = 0,
+    to = 1,
+    duration = 300,
+    ease = easeOut,
+    onUpdate, onEnd} = {}) {
+    const delta = to - from;
+    const startTime = performance.now();
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const latest = from + ease(progress) * delta;
+
+        if (onUpdate) onUpdate(latest);
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+        if(latest == to){
+            if(onEnd){
+                onEnd()
+            }
+        }
+    }
+
+    requestAnimationFrame(update);
+}
+function easeOut(progress, power = 2) {
+    return 1 - (1 - progress) ** power;
+}
+				if(pulsT&&Etexture&&material){
+					console.log(500)
+					setInterval(function(){
+						
+						animate({
+							from:10,
+							to:0,
+							duration:100,
+							onUpdate(data){
+								console.log(data)
+								material.emissiveIntensity = data
+							},
+							onEnd(){
+								animate({
+							from:0,
+							to:10,
+							duration:100,
+							onUpdate(data){
+								material.emissiveIntensity = data
+							}
+						})
+							}
+						})
+					},200)
+				}
+			function animate() {
+
+				requestAnimationFrame( animate );
+				if(skinData){
+					if(skinData.movT){
+						texture.offset.y += skinData.movT;
+					}
+				}
+				controls.update(); // only required if controls.enableDamping = true, or if controls.autoRotate = true
+
+				render();
+
+			}
+
+			function render() {
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
