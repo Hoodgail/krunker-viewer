@@ -9,13 +9,21 @@ utils.url = function(type,id){
 		case"model":
 			url = utils.urls[0]+utils.urls[1]+utils.urls[3]+id+".obj"
 		break;
-
+		
+    case"model2":
+			url = utils.urls[0]+utils.urls[1]+id+".obj"
+		break;
+		
 		case"texture":
 			url = utils.urls[0]+utils.urls[2]+utils.urls[4]+id+".png"
 		break;
 
 		case"texture2":
 			url = utils.urls[0]+utils.urls[2]+utils.urls[3]+id+".png"
+		break;
+		
+		case"texture3":
+			url = utils.urls[0]+utils.urls[2]+id+".png"
 		break;
 	}
 	if(utils.cors){
