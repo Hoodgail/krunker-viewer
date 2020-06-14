@@ -5,6 +5,7 @@ BETA... only basics work for now
 - back(``background-color``:``Number-hex``) // default is transparent
 # todo
 - add dye
+- bloom shaders
 
 # finised
 - skin opacity
