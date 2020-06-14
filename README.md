@@ -2,7 +2,7 @@
 BETA... only basics work for now
 ## parameters
 - skinIdP(``skin-Index``:``Number``)
-- back(``background-color``:``Number-hex``)
+- back(``background-color``:``Number-hex``) // default is transparent
 # todo
 - add dye
 
