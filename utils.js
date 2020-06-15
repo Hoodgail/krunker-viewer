@@ -1,6 +1,6 @@
 const utils = {}
 utils.cors = true
-utils.corsUrl = "https://hood-cors.glitch.me/?url="
+utils.corsUrl = "https://cors-anywhere.herokuapp.com/"
 utils.urls = ["https://assets.krunker.io/","models/","textures/","weapons/weapon_","weapons/skins/weapon_"]
 
 utils.url = function(type,id){
@@ -27,7 +27,7 @@ utils.url = function(type,id){
 		break;
 	}
 	if(utils.cors){
-		return utils.corsUrl+btoa(url)
+		return utils.corsUrl+(url)
 	}else{
 		return url
 	}
