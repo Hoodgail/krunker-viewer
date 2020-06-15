@@ -1,5 +1,5 @@
 const utils = {}
-utils.cors = false
+utils.cors = true
 utils.corsUrl = "https://hood-cors.glitch.me/?url="
 utils.urls = ["https://assets.krunker.io/","models/","textures/","weapons/weapon_","weapons/skins/weapon_"]
 
